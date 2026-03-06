@@ -1,0 +1,174 @@
+:root {
+  --bg: #f6f0c6;
+  --text: #111111;
+  --muted: #3f3f3f;
+  --blue: #111111;
+  --line: #232323;
+  --card-shadow: 0 6px 16px rgba(16, 24, 40, 0.08);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+.topbar {
+  background: #111111;
+  color: #ffd84d;
+}
+
+.topbar-sub {
+  opacity: 1;
+}
+
+.step-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid #111111;
+  background: #ffe680;
+}
+
+.btn-step {
+  border-radius: 999px;
+  border: 1px solid #111111;
+  background: #fff9d8;
+  color: #111111;
+}
+
+.btn-step.active {
+  background: #111111;
+  border-color: #111111;
+  color: #ffd84d;
+}
+
+.flow-block {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 14px;
+  border: 1px solid #111111;
+  border-radius: 8px;
+  background: #fffbe6;
+}
+
+.flow-note {
+  padding: 10px;
+}
+
+.flow-note h2 {
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.flow-note p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.phone-card {
+  max-width: 430px;
+  width: 100%;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: var(--card-shadow);
+  overflow: hidden;
+}
+
+.phone-top {
+  height: 8px;
+  border-bottom: 1px solid #111111;
+  background: #ffd84d;
+}
+
+.phone-body {
+  padding: 16px;
+}
+
+.screen-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 9px;
+}
+
+.form-label {
+  font-size: 0.83rem;
+  margin-bottom: 4px;
+  color: #111111;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border-color: #111111;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.15rem rgba(255, 216, 77, 0.5);
+  border-color: #111111;
+}
+
+.btn-main {
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #fff;
+  background: #111111;
+}
+
+.btn-main:hover {
+  color: #ffd84d;
+  background: #000000;
+}
+
+.list-group-item {
+  border-color: #111111;
+  background: #fffef5;
+}
+
+.participante-item {
+  cursor: grab;
+  user-select: none;
+}
+
+.participante-item.dragging {
+  opacity: 0.55;
+}
+
+.save-state {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+#estadoGuardado {
+  color: #111111;
+  font-weight: 600;
+}
+
+.panel-box {
+  min-height: 120px;
+  border: 1px dashed #111111;
+  border-radius: 8px;
+  background: #fffdf0;
+  padding: 10px;
+}
+
+.badge-soft {
+  background: #ffe680;
+  color: #111111;
+  border: 1px solid #111111;
+}
+
+@media (min-width: 992px) {
+  .flow-block {
+    grid-template-columns: 1fr 460px;
+    align-items: center;
+  }
+}
