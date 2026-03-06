@@ -1,10 +1,12 @@
-﻿(function () {
+(function () {
   const participants = JSON.parse(localStorage.getItem("participants")) || [];
-
   const enabledSelect = document.getElementById("hayExclusiones");
   const controls = document.querySelector(".exclusion-controls");
   const list = document.getElementById("listaExclusiones");
   const continueBtn = document.getElementById("btnContinuarPaso3");
+  const selectA = document.getElementById("selectPersonaA");
+  const selectB = document.getElementById("selectPersonaB");
+  const addBtn = document.getElementById("btnAgregarExclusion");
 
   let exclusions = JSON.parse(localStorage.getItem("exclusions")) || {};
 
@@ -16,7 +18,28 @@
   }
 
   function swal(options) {
-    if (window.Swal) return Swal.fire(options);
+    if (window.Swal) {
+      const defaults = {
+        confirmButtonText: "Entendido",
+        buttonsStyling: false,
+        customClass: {
+          popup: "swaply-alert-popup",
+          title: "swaply-alert-title",
+          htmlContainer: "swaply-alert-text",
+          confirmButton: "swaply-alert-btn"
+        }
+      };
+
+      return Swal.fire({
+        ...defaults,
+        ...options,
+        customClass: {
+          ...defaults.customClass,
+          ...(options.customClass || {})
+        }
+      });
+    }
+
     alert([options.title, options.text].filter(Boolean).join("\n"));
     return Promise.resolve();
   }
@@ -40,26 +63,22 @@
 
   function puedeExcluir(persona) {
     const maxExclusiones = participants.length - 2;
-
     if ((exclusions[persona] || []).length >= maxExclusiones) {
       swal({
         icon: "warning",
-        title: "Demasiadas exclusiones",
-        text: "Cada participante debe tener al menos una persona posible para regalar."
+        title: "Limite alcanzado",
+        text: "Esa persona ya no puede bloquear a nadie mas."
       });
       return false;
     }
-
     return true;
   }
 
   function getEntries() {
     const entries = [];
-
     Object.entries(exclusions).forEach(([persona, lista]) => {
       lista.forEach((name) => entries.push([persona, name]));
     });
-
     return entries;
   }
 
@@ -80,143 +99,43 @@
       item.querySelector("button").addEventListener("click", () => {
         exclusions[persona] = (exclusions[persona] || []).filter((p) => p !== name);
         guardarExclusiones();
-        render();
+        renderExclusionList();
       });
 
       list.appendChild(item);
     });
   }
 
-  function render() {
-    normalizarExclusiones();
-    guardarExclusiones();
-
-    renderExclusionList();
-
-    if (enabledSelect.value !== "si") {
-      controls.innerHTML = "";
-      controls.classList.add("d-none");
-      return;
-    }
-
-    controls.classList.remove("d-none");
-    controls.innerHTML = `
-      <div class="row g-2">
-        <div class="col-12 col-md-5">
-          <div class="fw-semibold mb-2">Participantes</div>
-          <div id="dragParticipantsList" class="list-group"></div>
-        </div>
-        <div class="col-12 col-md-7">
-          <div class="fw-semibold mb-2">Zonas de exclusion</div>
-          <div id="dropZonesContainer"></div>
-        </div>
-      </div>
-    `;
-
-    const dragParticipants = controls.querySelector("#dragParticipantsList");
-    const zonesContainer = controls.querySelector("#dropZonesContainer");
-
+  function fillSelects() {
+    selectA.innerHTML = "";
+    selectB.innerHTML = "";
     participants.forEach((person) => {
-      const dragItem = document.createElement("div");
-      dragItem.className = "list-group-item mb-2";
-      dragItem.textContent = person;
-      dragItem.draggable = true;
+      const optionA = document.createElement("option");
+      optionA.value = person;
+      optionA.textContent = person;
+      selectA.appendChild(optionA);
 
-      dragItem.addEventListener("dragstart", (e) => {
-        e.dataTransfer.setData("text/plain", person);
-        e.dataTransfer.effectAllowed = "move";
-      });
-
-      dragParticipants.appendChild(dragItem);
+      const optionB = document.createElement("option");
+      optionB.value = person;
+      optionB.textContent = person;
+      selectB.appendChild(optionB);
     });
+  }
 
-    participants.forEach((person) => {
-      if (!exclusions[person]) exclusions[person] = [];
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "mb-3 p-3 border rounded";
-
-      const title = document.createElement("div");
-      title.className = "fw-bold mb-2";
-      title.textContent = person + " NO puede regalar a:";
-
-      const dropZone = document.createElement("div");
-      dropZone.className = "p-2 border rounded";
-      dropZone.style.minHeight = "54px";
-
-      dropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-      });
-
-      dropZone.addEventListener("drop", (e) => {
-        e.preventDefault();
-
-        const draggedPerson = e.dataTransfer.getData("text/plain");
-        if (!draggedPerson) return;
-
-        if (draggedPerson === person) {
-          swal({
-            icon: "warning",
-            title: "Exclusion invalida",
-            text: "Una persona no puede excluirse a si misma."
-          });
-          return;
-        }
-
-        if ((exclusions[person] || []).includes(draggedPerson)) {
-          swal({
-            icon: "warning",
-            title: "Exclusion duplicada",
-            text: "Esa exclusion ya existe."
-          });
-          return;
-        }
-
-        if (!puedeExcluir(person)) return;
-
-        exclusions[person].push(draggedPerson);
-        guardarExclusiones();
-        render();
-      });
-
-      const blocked = exclusions[person] || [];
-      if (blocked.length === 0) {
-        const placeholder = document.createElement("span");
-        placeholder.className = "text-muted small";
-        placeholder.textContent = "Arrastra aqui a quien no puede regalar.";
-        dropZone.appendChild(placeholder);
-      } else {
-        blocked.forEach((name) => {
-          const tag = document.createElement("span");
-          tag.className = "badge text-bg-light border me-1 mb-1";
-          tag.innerHTML = `${name} <button type="button" class="btn btn-sm p-0 border-0 ms-1">x</button>`;
-
-          tag.querySelector("button").addEventListener("click", () => {
-            exclusions[person] = exclusions[person].filter((p) => p !== name);
-            guardarExclusiones();
-            render();
-          });
-
-          dropZone.appendChild(tag);
-        });
-      }
-
-      wrapper.appendChild(title);
-      wrapper.appendChild(dropZone);
-      zonesContainer.appendChild(wrapper);
-    });
+  function renderControls() {
+    controls.classList.toggle("d-none", enabledSelect.value !== "si");
   }
 
   function init() {
     activarPasoActual();
 
-    if (!enabledSelect || !controls || !list || !continueBtn) return;
+    if (!enabledSelect || !controls || !list || !continueBtn || !selectA || !selectB || !addBtn) return;
 
     if (participants.length < 3) {
       swal({
         icon: "warning",
-        title: "Faltan participantes",
-        text: "Debes completar el paso de participantes antes de configurar exclusiones."
+        title: "Paso incompleto",
+        text: "Primero agrega participantes en el paso anterior."
       }).then(() => {
         window.location.href = "participantes.html";
       });
@@ -224,26 +143,62 @@
     }
 
     normalizarExclusiones();
+    guardarExclusiones();
+    fillSelects();
     enabledSelect.value = getEntries().length > 0 ? "si" : "no";
-    render();
+    renderControls();
+    renderExclusionList();
 
     enabledSelect.addEventListener("change", () => {
       if (enabledSelect.value === "no") {
         exclusions = {};
         guardarExclusiones();
-        render();
-
+        renderControls();
+        renderExclusionList();
         swal({
           icon: "success",
-          title: "Sin exclusiones",
-          text: "Se continuara sin restricciones."
+          title: "Exclusiones desactivadas",
+          text: "El sorteo seguira sin bloqueos."
         });
         return;
       }
 
       normalizarExclusiones();
       guardarExclusiones();
-      render();
+      renderControls();
+      renderExclusionList();
+    });
+
+    addBtn.addEventListener("click", () => {
+      if (enabledSelect.value !== "si") return;
+
+      const persona = selectA.value;
+      const bloqueo = selectB.value;
+
+      if (!persona || !bloqueo || persona === bloqueo) {
+        swal({
+          icon: "warning",
+          title: "Seleccion invalida",
+          text: "Debes seleccionar dos personas distintas."
+        });
+        return;
+      }
+
+      if ((exclusions[persona] || []).includes(bloqueo)) {
+        swal({
+          icon: "warning",
+          title: "Ya estaba bloqueado",
+          text: "Esa exclusion ya se habia agregado."
+        });
+        return;
+      }
+
+      if (!puedeExcluir(persona)) return;
+
+      if (!Array.isArray(exclusions[persona])) exclusions[persona] = [];
+      exclusions[persona].push(bloqueo);
+      guardarExclusiones();
+      renderExclusionList();
     });
 
     continueBtn.addEventListener("click", (event) => {
@@ -252,8 +207,8 @@
       else guardarExclusiones();
 
       swal({
-        title: "Guardado",
-        text: "Datos guardados correctamente.",
+        title: "Configuracion guardada",
+        text: "Las exclusiones quedaron registradas.",
         icon: "success"
       }).then(() => {
         window.location.href = "evento.html";

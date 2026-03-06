@@ -9,7 +9,27 @@
   const boton = document.getElementById("btnContinuarPaso4");
 
   function swal(options) {
-    if (window.Swal) return Swal.fire(options);
+    if (window.Swal) {
+      const defaults = {
+        confirmButtonText: "Entendido",
+        buttonsStyling: false,
+        customClass: {
+          popup: "swaply-alert-popup",
+          title: "swaply-alert-title",
+          htmlContainer: "swaply-alert-text",
+          confirmButton: "swaply-alert-btn"
+        }
+      };
+
+      return Swal.fire({
+        ...defaults,
+        ...options,
+        customClass: {
+          ...defaults.customClass,
+          ...(options.customClass || {})
+        }
+      });
+    }
     alert([options.title, options.text].filter(Boolean).join("\n"));
     return Promise.resolve();
   }
@@ -75,8 +95,8 @@
       if (!tipoEvento) {
         swal({
           icon: "warning",
-          title: "Selecciona un evento",
-          text: "Debes elegir un evento antes de continuar."
+          title: "Evento pendiente",
+          text: "Selecciona un tipo de evento para continuar."
         });
         return;
       }
@@ -86,8 +106,8 @@
         if (!tipoEvento) {
           swal({
             icon: "warning",
-            title: "Selecciona un evento",
-            text: "Debes escribir el nombre del evento personalizado."
+            title: "Falta el nombre del evento",
+            text: "Escribe el nombre para la opcion personalizada."
           });
           return;
         }
@@ -103,8 +123,8 @@
       if (!fecha || !precio) {
         swal({
           icon: "warning",
-          title: "Campos incompletos",
-          text: "Debes seleccionar una fecha y un monto para el regalo"
+          title: "Datos incompletos",
+          text: "Selecciona fecha y presupuesto del regalo."
         });
         return;
       }
@@ -115,8 +135,8 @@
 
       swal({
         icon: "success",
-        title: "Datos guardados",
-        text: "La configuracion del intercambio fue guardada"
+        title: "Evento configurado",
+        text: "Fecha, evento y presupuesto guardados."
       }).then(() => {
         window.location.href = "acciones.html";
       });

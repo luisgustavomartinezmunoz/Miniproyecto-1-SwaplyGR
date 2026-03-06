@@ -65,7 +65,27 @@
   }
 
   function swal(options) {
-    if (window.Swal) return Swal.fire(options);
+    if (window.Swal) {
+      const defaults = {
+        confirmButtonText: "Entendido",
+        buttonsStyling: false,
+        customClass: {
+          popup: "swaply-alert-popup",
+          title: "swaply-alert-title",
+          htmlContainer: "swaply-alert-text",
+          confirmButton: "swaply-alert-btn"
+        }
+      };
+
+      return Swal.fire({
+        ...defaults,
+        ...options,
+        customClass: {
+          ...defaults.customClass,
+          ...(options.customClass || {})
+        }
+      });
+    }
     alert([options.title, options.text].filter(Boolean).join("\n"));
     return Promise.resolve();
   }
@@ -122,10 +142,48 @@
       return;
     }
 
+    let draggedIndex = null;
+
     participants.forEach((name, index) => {
       const item = document.createElement("li");
-      item.className = "list-group-item d-flex justify-content-between align-items-center";
-      item.innerHTML = `${name}<button type="button" class="btn btn-sm btn-danger">X</button>`;
+      item.className = "list-group-item d-flex justify-content-between align-items-center participant-drag-item";
+      item.draggable = true;
+      item.innerHTML = `<span class="participant-name"><span class="drag-handle">::</span>${name}</span><button type="button" class="btn btn-sm btn-danger">X</button>`;
+
+      item.addEventListener("dragstart", () => {
+        draggedIndex = index;
+        item.classList.add("dragging");
+      });
+
+      item.addEventListener("dragend", () => {
+        draggedIndex = null;
+        item.classList.remove("dragging");
+        list.querySelectorAll(".participant-drag-item").forEach((el) => el.classList.remove("drag-over"));
+      });
+
+      item.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        if (draggedIndex !== null && draggedIndex !== index) {
+          item.classList.add("drag-over");
+        }
+      });
+
+      item.addEventListener("dragleave", () => {
+        item.classList.remove("drag-over");
+      });
+
+      item.addEventListener("drop", (event) => {
+        event.preventDefault();
+        item.classList.remove("drag-over");
+
+        if (draggedIndex === null || draggedIndex === index) return;
+
+        const current = getDraftParticipants();
+        const [moved] = current.splice(draggedIndex, 1);
+        current.splice(index, 0, moved);
+        saveDraftParticipants(current);
+        renderList(current);
+      });
 
       item.querySelector("button").addEventListener("click", () => {
         const current = getDraftParticipants();
@@ -161,9 +219,9 @@
       if (name === "") {
         swal({
           icon: "warning",
-          title: "Campo vacio",
-          text: "Escribe un nombre antes de agregar.",
-          confirmButtonText: "Entendido"
+          title: "Nombre pendiente",
+          text: "Escribe un nombre para agregarlo a la lista.",
+          confirmButtonText: "Listo"
         });
         return;
       }
@@ -171,9 +229,9 @@
       if (existeNombre(name)) {
         swal({
           icon: "warning",
-          title: "Nombre duplicado",
-          text: "Ese nombre ya esta en la lista o coincide con el organizador.",
-          confirmButtonText: "Entendido"
+          title: "Ese nombre ya existe",
+          text: "Ya esta registrado o coincide con el organizador.",
+          confirmButtonText: "Corregir"
         });
         return;
       }
@@ -203,9 +261,9 @@
         if (organizerName === "") {
           swal({
             icon: "warning",
-            title: "Organizador vacio",
-            text: "Escribe el nombre del organizador o desmarca la opcion.",
-            confirmButtonText: "Entendido"
+            title: "Falta el organizador",
+            text: "Escribe su nombre o marca que no participa.",
+            confirmButtonText: "Corregir"
           });
           return;
         }
@@ -213,8 +271,8 @@
         if (participants.some((p) => normalizar(p) === normalizar(organizerName))) {
           swal({
             icon: "warning",
-            title: "Nombre duplicado",
-            text: "El organizador ya esta agregado como participante.",
+            title: "Nombre repetido",
+            text: "El organizador ya se agrego como participante.",
             confirmButtonText: "Entendido"
           });
           return;
@@ -226,9 +284,9 @@
       if (finalList.length === 0) {
         swal({
           icon: "warning",
-          title: "Sin participantes",
-          text: "No hay participantes agregados para el sorteo.",
-          confirmButtonText: "Entendido"
+          title: "Lista vacia",
+          text: "Agrega participantes antes de continuar.",
+          confirmButtonText: "Agregar"
         });
         return;
       }
@@ -236,9 +294,9 @@
       if (finalList.length < 3) {
         swal({
           icon: "error",
-          title: "Muy pocos participantes",
-          text: "El intercambio necesita al menos 3 personas para funcionar correctamente.",
-          confirmButtonText: "Entendido"
+          title: "Se necesitan mas personas",
+          text: "Debes registrar al menos 3 participantes.",
+          confirmButtonText: "Ok"
         });
         return;
       }
@@ -248,9 +306,9 @@
 
       swal({
         icon: "success",
-        title: "Comencemos",
-        text: "Participantes guardados. Ahora vamos a configurar exclusiones.",
-        confirmButtonText: "Vamos"
+        title: "Participantes listos",
+        text: "Todo guardado. Seguimos con exclusiones.",
+        confirmButtonText: "Seguir"
       }).then(() => {
         window.location.href = "exclusiones.html";
       });

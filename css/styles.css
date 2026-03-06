@@ -203,6 +203,48 @@ main.container {
   background: #fffdf3;
 }
 
+.drag-help {
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff7da;
+  font-size: 0.82rem;
+  color: #3a3a3a;
+}
+
+.participant-drag-item {
+  cursor: grab;
+  border-radius: 8px;
+}
+
+.participant-drag-item .participant-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.drag-handle {
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: #606060;
+}
+
+.participant-drag-item.dragging {
+  opacity: 0.65;
+}
+
+.participant-drag-item.drag-over {
+  background: #ffe9a4;
+  border-color: var(--black);
+}
+
+.exclusion-controls {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff7da;
+  padding: 12px;
+}
+
 .save-state {
   color: var(--muted);
   font-size: 0.9rem;
@@ -225,6 +267,37 @@ main.container {
   background: var(--yellow);
   color: var(--black);
   border: 1px solid var(--black);
+}
+
+.swal2-popup.swaply-alert-popup {
+  border: 2px solid var(--black);
+  border-radius: 14px;
+  background: #fff7da;
+  color: var(--black);
+  box-shadow: 8px 8px 0 #111111;
+}
+
+.swal2-title.swaply-alert-title {
+  color: var(--black);
+  font-weight: 800;
+}
+
+.swal2-html-container.swaply-alert-text {
+  color: #2d2d2d;
+}
+
+.swal2-confirm.swaply-alert-btn {
+  border: 1px solid var(--black);
+  border-radius: 8px;
+  background: var(--black);
+  color: var(--yellow);
+  font-weight: 700;
+  padding: 8px 18px;
+}
+
+.swal2-confirm.swaply-alert-btn:hover {
+  background: var(--yellow);
+  color: var(--black);
 }
 
 @media (min-width: 992px) {

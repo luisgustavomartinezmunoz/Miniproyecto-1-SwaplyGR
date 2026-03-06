@@ -19,7 +19,27 @@
   }
 
   function swal(options) {
-    if (window.Swal) return Swal.fire(options);
+    if (window.Swal) {
+      const defaults = {
+        confirmButtonText: "Entendido",
+        buttonsStyling: false,
+        customClass: {
+          popup: "swaply-alert-popup",
+          title: "swaply-alert-title",
+          htmlContainer: "swaply-alert-text",
+          confirmButton: "swaply-alert-btn"
+        }
+      };
+
+      return Swal.fire({
+        ...defaults,
+        ...options,
+        customClass: {
+          ...defaults.customClass,
+          ...(options.customClass || {})
+        }
+      });
+    }
     alert([options.title, options.text].filter(Boolean).join("\n"));
     return Promise.resolve();
   }
@@ -151,8 +171,8 @@
         if (status) status.textContent = "guardado";
         swal({
           icon: "success",
-          title: "Datos guardados",
-          text: "La configuracion actual se mantiene en localStorage."
+          title: "Estado actualizado",
+          text: "Los datos siguen guardados en localStorage."
         });
       });
     }
@@ -169,8 +189,8 @@
         if (participants.length < 3) {
           swal({
             icon: "warning",
-            title: "Faltan participantes",
-            text: "Debes registrar al menos 3 participantes antes de sortear."
+            title: "Sorteo bloqueado",
+            text: "Necesitas minimo 3 participantes."
           });
           return;
         }
@@ -181,8 +201,8 @@
           renderResultados(null);
           swal({
             icon: "error",
-            title: "No se pudo generar el sorteo",
-            text: "Las exclusiones son demasiado restrictivas."
+            title: "No fue posible emparejar",
+            text: "Las exclusiones actuales impiden un sorteo valido."
           });
           return;
         }
@@ -191,8 +211,8 @@
 
         swal({
           icon: "success",
-          title: "Sorteo realizado",
-          text: "Los resultados se generaron correctamente."
+          title: "Emparejamiento generado",
+          text: "El sorteo se realizo correctamente."
         });
       });
     }
