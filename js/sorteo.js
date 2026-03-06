@@ -88,6 +88,7 @@
   function mostrarDatosEnPanel() {
     if (!dataPanel) return;
 
+    const organizerName = localStorage.getItem("swaply_organizer_name") || "No definido";
     const fechaEvento = localStorage.getItem("fechaEvento") || "No definida";
     const precioRegalo = localStorage.getItem("precioRegalo") || "No definido";
     const tipoEvento = localStorage.getItem("tipoEvento") || "No definido";
@@ -98,6 +99,7 @@
     });
 
     dataPanel.innerHTML = `
+      <p><strong>Organizador:</strong> ${organizerName}</p>
       <p><strong>Tipo de evento:</strong> ${tipoEvento}</p>
       <p><strong>Fecha del evento:</strong> ${fechaEvento}</p>
       <p><strong>Precio sugerido:</strong> $${precioRegalo}</p>
@@ -109,6 +111,7 @@
   }
 
   function mostrarDatosModal() {
+    const organizerName = localStorage.getItem("swaply_organizer_name") || "No definido";
     const fechaEvento = localStorage.getItem("fechaEvento") || "No definida";
     const precioRegalo = localStorage.getItem("precioRegalo") || "No definido";
     const tipoEvento = localStorage.getItem("tipoEvento") || "No definido";
@@ -124,6 +127,7 @@
       width: 600,
       html: `
         <div style="text-align:left;">
+          <p><strong>Organizador:</strong> ${organizerName}</p>
           <p><strong>Tipo de evento:</strong> ${tipoEvento}</p>
           <p><strong>Fecha del evento:</strong> ${fechaEvento}</p>
           <p><strong>Precio sugerido:</strong> $${precioRegalo}</p>
